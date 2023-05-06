@@ -1,6 +1,15 @@
 import _ from "lodash";
 import jsonPlaceHolder from "../apis/jsonPlaceHolder";
 
+export const fetchPostsAndUsers = () => async (dispatch, getState) => {
+  await dispatch(fetchPosts());
+
+  _.chain(getState().posts)
+    .map('userId')
+    .uniq()
+    .forEach(id => dispatch(fetchUser(id)))
+    .value();
+};
 
 // simple way
 export const fetchPosts = () => async dispatch => {
@@ -22,4 +31,16 @@ export const fetchUser = id => async dispatch => {
 //   dispatch({ type: "FETCH_USER", payload: response.data });
 // });
 
+
 // alternate way
+// replce inside PostList.js: import { fetchPosts } from "../actions"; with import { fetchPostsAndUsers } from "../actions";
+// then replace    componentDidMount() {
+//        this.props.fetchPosts();
+//      }
+// with
+// componentDidMount() {
+//        this.props.fetchPostsAndUsers();
+//      }
+// and then hook it up with connect:
+// export default connect(mapStateToProps, { fetchPosts })(PostList); with
+// export default connect(mapStateToProps, { fetchPostsAndUsers })(PostList);
